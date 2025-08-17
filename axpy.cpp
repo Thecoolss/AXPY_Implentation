@@ -6,12 +6,13 @@
 #include<filesystem>
 
 #define pb push_back
+#define ll long long
 
 struct Result{
   int size;
   double av_duration,througput;
 };
-const int sizes[]={100,1000,10000,100000,1000000};
+const ll sizes[]={100,1000,10000,(ll)1e5,(ll)1e6,(ll)1e7,(ll)1e8};
 const double a=2;
 
 void axpy_op(double a, const std::vector<double>& x, std::vector<double>&y){
@@ -49,17 +50,18 @@ Result test_benchmark_uniform(int size,double a){
   int repetitions=1000;
   
   std::vector<double> x(size),y(size);
+  x=generate_random_vector_with_uniform(size),y=generate_random_vector_with_uniform(size);
   auto start_time=std::chrono::high_resolution_clock::now();
   for(int r=0;r<repetitions;++r){
-     x=generate_random_vector_with_uniform(size),y=generate_random_vector_with_uniform(size);
+     
     axpy_op(a,x,y);
   }
   auto end_time=std::chrono::high_resolution_clock::now();
 
-  double duration=static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(end_time-start_time).count())/1000;
+  double duration=static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(end_time-start_time).count())/1000000;
   double average_time= duration/repetitions;
 
-  double throuput_ingbs=(3.0*size * sizeof(double)*repetitions)/(duration/1000)/1e9;
+  double throuput_ingbs=(3.0*size * sizeof(double)*repetitions)/(duration/1000000)/1e9;
 
   return {size,average_time,throuput_ingbs};
 }
@@ -95,7 +97,7 @@ void run_benchmark_uniform(const std::string& filename){
     csv.open(filename);
     csv<<"Size,Average Duration,Throughput\n";
   }
-  for(int j=0;j<5;++j){
+  for(int j=0;j<7;++j){
       Result result=test_benchmark_uniform(sizes[j],a);
       printf("Size: %d Average Duration: %f Throuput: %f\n",result.size,result.av_duration,result.througput);
       csv<<result.size<<','<<result.av_duration<<','<<result.througput<<'\n';
