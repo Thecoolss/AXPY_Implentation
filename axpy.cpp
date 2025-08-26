@@ -58,10 +58,10 @@ Result test_benchmark_uniform(int size,double a){
   }
   auto end_time=std::chrono::high_resolution_clock::now();
 
-  double duration=static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(end_time-start_time).count())/1000000;
+  double duration=static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(end_time-start_time).count());
   double average_time= duration/repetitions;
 
-  double throuput_ingbs=(3.0*size * sizeof(double)*repetitions)/(duration/1000000)/1e9;
+  double throuput_ingbs=(3.0*size * sizeof(double)*repetitions)/(duration/1e9)/1e9;
 
   return {size,average_time,throuput_ingbs};
 }
@@ -86,15 +86,13 @@ Result test_benchmark_uniform(int size,double a){
 
 
 void run_benchmark_uniform(const std::string& filename){
-  std::fstream csv;
+  std::ofstream csv(filename,std::ios_base::app);
   bool exists=std::filesystem::exists(filename);
   if(exists){
-      csv.open(filename,std::ios_base::app);
       printf("Existing file opened successfully\n");
     }
   else{
     printf("Created file successfully\n");
-    csv.open(filename);
     csv<<"Size,Average Duration,Throughput\n";
   }
   for(int j=0;j<7;++j){
